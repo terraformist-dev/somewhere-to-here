@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Somewhere to Here</string>
+    <string name="widget_small_description">Points back to your pin and says how far</string>
+    <string name="widget_wide_description">Direction, distance and walking time back to your pin</string>
+    <string name="toy_name">Somewhere to Here</string>
+    <string name="toy_summary">A map of your pins. Long-press to switch between the map and each pin.</string>
+    <string name="name_hint">NAME IT, E.G. CAR</string>
+    <string name="note_hint">ADD A NOTE</string>
+    <string name="about_open">What is this app?</string>
+    <string name="about_close">Close</string>
+    <string name="about_headline">Pin it.</string>
+    <string name="about_line1">A compass back to the places you leave: the car, the tent, the meeting spot.</string>
+    <string name="about_line2">Pin up to three spots. Tap a pin to give it a name and a note. Nothing leaves your phone.</string>
+    <string name="about_tips">WIDGET: THE TOP IS NORTH\nGLYPH: LONG PRESS TO SWITCH BETWEEN THE MAP AND EACH PIN</string>
+    <string name="about_signoff">Made by a fan. Nothing to do with Nothing.</string>
+    <string name="about_ok">OK</string>
+</resources>
