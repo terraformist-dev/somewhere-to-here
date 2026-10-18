@@ -21,6 +21,7 @@ import com.nothing.ketchum.GlyphToy
 /**
  * The Glyph Toy: your pins on the Glyph Matrix on the back of the phone (see [MatrixArt]).
  *
+ * - Switching to it plays a short switch-on: a pin drops in, bounces and sends out a ripple.
  * - Starts on the map: you in the middle, each pin's shape where it is.
  * - Long-press the Glyph Button to step through: map, then each pin in use, then back to the map.
  *   Landing on a pin shows its distance for a few seconds, then points to it.
@@ -49,6 +50,9 @@ class HereToyService : Service() {
     /** 0 = the map, else a pin number. */
     private var view = 0
     private var distanceUntil = 0L
+
+    /** When the switch-on started (when this toy was picked); 0 once it's done. */
+    private var introAt = 0L
 
     /** Stay live until this time even with the screen off. */
     private var liveUntil = 0L
@@ -125,6 +129,7 @@ class HereToyService : Service() {
                 connected = true
                 Where.last(applicationContext)?.let { heading.setLocation(it) }
                 Where.refresh(applicationContext) { location -> location?.let { heading.setLocation(it) } }
+                introAt = System.currentTimeMillis()
                 liveFor(LIVE_MS)
             }
 
@@ -192,7 +197,7 @@ class HereToyService : Service() {
         val s = Now.snap(applicationContext)
         // A pin that's been cleared: back to the map.
         if (view != 0 && s.placed.none { it.pin.number == view }) view = 0
-        val grid = MatrixArt.render(
+        var grid = MatrixArt.render(
             s,
             view,
             heading.degrees,
@@ -200,6 +205,10 @@ class HereToyService : Service() {
             still = still,
             dim = alwaysOn,
         )
+        // The switch-on (a pin dropping in), once each time this toy is picked.
+        if (introAt != 0L) {
+            if (now - introAt < MatrixArt.INTRO_MS && !still) grid = MatrixArt.intro(now - introAt, grid) else introAt = 0L
+        }
         val frame = IntArray(GlyphShape.SIZE * GlyphShape.SIZE) { i ->
             val x = i % GlyphShape.SIZE
             val y = i / GlyphShape.SIZE

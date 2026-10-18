@@ -62,6 +62,13 @@ small `main` (build a `Snap` with `me = null`) to print the Glyph Matrix as text
   map → each placed pin → map; landing on a pin shows shape + distance for 3 s, then the pin on a
   log scale (edge ≥ 2 km, close 30 m) with a needle; NEAR = shape in a breathing ring.
   Live for 60 s after a touch or while the screen is on; location every 5 s while live.
+- **Glyph switch-on** (`MatrixArt.intro`, 1.15 s, once each time the toy is picked, from
+  `onServiceConnected`): a big solid pin drops in from the top (speeding up like gravity), lands in
+  the middle with a one-dot bounce, and a flat ripple spreads out from where its tail touched down;
+  then it fades into the normal frame. The owner wants each Somewhere toy to have its own switch-on
+  so he can tell them apart while cycling: Nothing dissolves to a dot that shoots to the edge,
+  Someone has two dots meeting in a beating heart, Up There has a dot arcing over a horizon.
+  Keep this one different from those.
 
 ## Glyph Matrix SDK 2.0 (same .aar as the sibling apps)
 

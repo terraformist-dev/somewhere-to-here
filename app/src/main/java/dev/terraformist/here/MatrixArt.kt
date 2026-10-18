@@ -189,6 +189,70 @@ object MatrixArt {
         grid.text(font, d.unit, (GlyphShape.SIZE - font.width(d.unit)) / 2, 16, 120)
     }
 
+    // ---------- Switch-on ----------
+
+    /** How long the switch-on lasts. */
+    const val INTRO_MS = 1_150L
+    private const val FALL_MS = 420L
+    private const val BOUNCE_MS = 560L
+    private const val RIPPLE_MS = 980L
+    private const val FADE_FROM_MS = 900L
+
+    /** Where the dropped pin comes to rest: its top row, and the row its tail tip touches. */
+    private const val REST_TOP = 9
+    private const val GROUND = 16
+
+    /**
+     * The switch-on, played once when this toy is picked, so it's easy to tell apart from the
+     * other Somewhere toys (Nothing's dissolve-and-shoot, Someone's heartbeat, Up There's arcing
+     * pass): a big pin drops in from the top, lands in the middle with a little bounce, and a
+     * ripple spreads out flat from where it landed. Then the pin and ripple fade as the normal
+     * picture ([after]) fades in.
+     */
+    fun intro(elapsed: Long, after: DotGrid): DotGrid {
+        val grid = DotGrid(GlyphShape.SIZE, GlyphShape.SIZE)
+        val t = elapsed.coerceAtLeast(0L)
+        val fade = ((t - FADE_FROM_MS).toDouble() / (INTRO_MS - FADE_FROM_MS)).coerceIn(0.0, 1.0)
+        val keep = 1.0 - fade
+        val pin = Mark.SOLID.big
+
+        // The drop: falling faster and faster (like gravity), then a one-dot bounce.
+        val top = when {
+            t < FALL_MS -> {
+                val p = t.toDouble() / FALL_MS
+                (-pin.height + (REST_TOP + pin.height) * p * p).roundToInt()
+            }
+            t < BOUNCE_MS -> REST_TOP - (sin(PI * (t - FALL_MS) / (BOUNCE_MS - FALL_MS)) * 1.4).roundToInt()
+            else -> REST_TOP
+        }
+        // A faint smear above it while it falls.
+        if (t in 60 until FALL_MS) grid.sprite(pin, 10, top - 2, (50 * keep).toInt())
+        pin.forEachDot { x, y -> grid.set(10 + x, top + y, (255 * keep).toInt()) }
+
+        // The ripple: a flat ring spreading out from where the tail touched down.
+        if (t in FALL_MS until RIPPLE_MS) {
+            val q = (t - FALL_MS).toDouble() / (RIPPLE_MS - FALL_MS)
+            val rx = 1.5 + q * 10.5
+            val ry = rx * 0.3
+            val level = (230 * (1 - q) * keep).toInt()
+            var a = 0.0
+            while (a < 360.0) {
+                val r = Math.toRadians(a)
+                val x = (C + rx * cos(r)).roundToInt()
+                val y = (GROUND + ry * sin(r)).roundToInt()
+                if (GlyphShape.contains(x, y)) grid.lift(x, y, level)
+                a += 4.0
+            }
+        }
+
+        if (fade > 0) {
+            for (k in after.levels.indices) {
+                grid.lift(k % GlyphShape.SIZE, k / GlyphShape.SIZE, (after.levels[k] * fade).toInt())
+            }
+        }
+        return grid
+    }
+
     /** 0.3..1, smoothly, once per [period]. Always 1 for a still frame. */
     private fun pulse(now: Long, period: Long, still: Boolean): Double {
         if (still) return 1.0
